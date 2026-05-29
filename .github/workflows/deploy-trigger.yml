@@ -25,11 +25,11 @@ jobs:
         run: npx trigger.dev@4.4.6 deploy --env prod
         working-directory: trigger
         env:
-          TRIGGER_API_KEY: ${{ secrets.TRIGGER_API_KEY }}
+          TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
 
       - name: Deploy to staging
         if: github.ref == 'refs/heads/dev'
         run: npx trigger.dev@4.4.6 deploy --env staging
         working-directory: trigger
         env:
-          TRIGGER_API_KEY: ${{ secrets.TRIGGER_API_KEY }}
+          TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
