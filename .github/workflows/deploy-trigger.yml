@@ -1,0 +1,35 @@
+name: Deploy Trigger.dev
+
+on:
+  push:
+    branches:
+      - main    # deploys to production
+      - dev     # deploys to staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: trigger
+
+      - name: Deploy to production
+        if: github.ref == 'refs/heads/main'
+        run: npx trigger.dev@4.4.6 deploy --env prod
+        working-directory: trigger
+        env:
+          TRIGGER_API_KEY: ${{ secrets.TRIGGER_API_KEY }}
+
+      - name: Deploy to staging
+        if: github.ref == 'refs/heads/dev'
+        run: npx trigger.dev@4.4.6 deploy --env staging
+        working-directory: trigger
+        env:
+          TRIGGER_API_KEY: ${{ secrets.TRIGGER_API_KEY }}
