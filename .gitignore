@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment variables — never commit these
+.env
+.env.local
+.env*.local
+
+# Trigger.dev build artifacts
+.trigger/
+trigger/.trigger/
+
+# Next.js build output
+frontend/.next/
+frontend/out/
+
+# TypeScript build output
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

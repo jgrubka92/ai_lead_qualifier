@@ -1,0 +1,18 @@
+{
+  "name": "ai-lead-qualifier-trigger",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx trigger.dev@latest dev",
+    "deploy": "npx trigger.dev@latest deploy"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@trigger.dev/sdk": "4.4.6"
+  },
+  "devDependencies": {
+    "@trigger.dev/build": "4.4.6",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
