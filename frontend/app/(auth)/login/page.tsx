@@ -22,10 +22,14 @@ export default function LoginPage() {
     const supabase = createClient();
 
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) {
         setError(error.message);
         setLoading(false);
+        return;
+      }
+      if (data.session) {
+        router.push("/qualify");
         return;
       }
       setMessage("Check your email to confirm your account, then sign in.");
