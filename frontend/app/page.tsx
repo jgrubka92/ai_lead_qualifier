@@ -20,17 +20,18 @@ interface QualificationResult {
   nextAction: string;
 }
 
-const TIER_STYLES: Record<string, string> = {
-  Hot: "bg-red-100 text-red-800 border-red-300",
-  Warm: "bg-yellow-100 text-yellow-800 border-yellow-300",
-  Cold: "bg-blue-100 text-blue-800 border-blue-300",
-};
-
 const DIMENSION_LABELS: Record<string, string> = {
   icpFit: "ICP Fit",
   authority: "Authority",
   companySize: "Company Size",
   source: "Source Quality",
+};
+
+const DIMENSION_WEIGHTS: Record<string, string> = {
+  icpFit: "35%",
+  authority: "30%",
+  companySize: "20%",
+  source: "15%",
 };
 
 export default function Home() {
@@ -49,9 +50,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   function handleChange(
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
@@ -82,78 +81,236 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          AI Lead Qualifier
-        </h1>
-        <p className="text-gray-500 mb-8 text-sm">
-          Powered by Faliam ICP · Built on Trigger.dev + Claude
-        </p>
+    <main
+      style={{ minHeight: "100vh", backgroundColor: "#FAF7F2", padding: "48px 16px 80px" }}
+    >
+      <div style={{ maxWidth: 680, margin: "0 auto" }}>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4"
-        >
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Full Name" name="fullName" value={form.fullName} onChange={handleChange} required />
-            <Field label="Company" name="company" value={form.company} onChange={handleChange} required />
+        {/* Header */}
+        <div style={{ marginBottom: 36 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+            <span
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#FFFFFF",
+                backgroundColor: "#1A1714",
+                padding: "3px 10px",
+                borderRadius: 20,
+                letterSpacing: "0.02em",
+              }}
+            >
+              Faliam
+            </span>
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 500,
+                color: "#D97559",
+                backgroundColor: "rgba(217, 117, 89, 0.1)",
+                padding: "3px 10px",
+                borderRadius: 20,
+                border: "1px solid rgba(217, 117, 89, 0.25)",
+              }}
+            >
+              AI Lead Qualifier
+            </span>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Title" name="title" value={form.title} onChange={handleChange} required />
-            <Field label="LinkedIn URL" name="linkedinUrl" value={form.linkedinUrl} onChange={handleChange} placeholder="https://linkedin.com/in/..." />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Company Size
-              </label>
-              <select
-                name="companySize"
-                value={form.companySize}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {["1-10", "11-50", "51-200", "201-500", "500+"].map((s) => (
-                  <option key={s} value={s}>{s} employees</option>
-                ))}
-              </select>
+          <h1
+            style={{
+              fontSize: 32,
+              fontWeight: 700,
+              color: "#1A1714",
+              lineHeight: 1.2,
+              letterSpacing: "-0.02em",
+              margin: 0,
+            }}
+          >
+            Qualify a Lead
+          </h1>
+          <p
+            style={{
+              marginTop: 8,
+              fontSize: 14,
+              color: "#9C9490",
+              fontWeight: 400,
+            }}
+          >
+            Powered by Faliam ICP · Gemini 2.5 Flash · Trigger.dev
+          </p>
+        </div>
+
+        {/* Form Card */}
+        <form onSubmit={handleSubmit}>
+          <div
+            style={{
+              backgroundColor: "#FFFFFF",
+              borderRadius: 16,
+              border: "1px solid rgba(0,0,0,0.07)",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04)",
+              padding: "28px 28px 24px",
+              marginBottom: 12,
+            }}
+          >
+            <p
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "#D97559",
+                marginBottom: 20,
+              }}
+            >
+              Lead Info
+            </p>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+              <Field label="Full Name" name="fullName" value={form.fullName} onChange={handleChange} required />
+              <Field label="Company" name="company" value={form.company} onChange={handleChange} required />
             </div>
-            <Field label="Industry" name="industry" value={form.industry} onChange={handleChange} placeholder="e.g. Dental DSO" required />
-          </div>
-          <Field label="Source" name="source" value={form.source} onChange={handleChange} placeholder="e.g. LinkedIn, referral, inbound" required />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Notes <span className="text-gray-400">(optional)</span>
-            </label>
-            <textarea
-              name="notes"
-              value={form.notes}
-              onChange={handleChange}
-              rows={3}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Any extra context about this lead..."
-            />
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+              <Field label="Title" name="title" value={form.title} onChange={handleChange} required />
+              <Field label="LinkedIn URL" name="linkedinUrl" value={form.linkedinUrl} onChange={handleChange} placeholder="https://linkedin.com/in/..." />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+              <div>
+                <Label text="Company Size" />
+                <select
+                  name="companySize"
+                  value={form.companySize}
+                  onChange={handleChange}
+                  style={inputStyle}
+                >
+                  {["1-10", "11-50", "51-200", "201-500", "500+"].map((s) => (
+                    <option key={s} value={s}>{s} employees</option>
+                  ))}
+                </select>
+              </div>
+              <Field label="Industry" name="industry" value={form.industry} onChange={handleChange} placeholder="e.g. Dental DSO" required />
+            </div>
+
+            <div style={{ marginBottom: 14 }}>
+              <Field label="Source" name="source" value={form.source} onChange={handleChange} placeholder="e.g. LinkedIn, referral, inbound" required />
+            </div>
+
+            <div>
+              <Label text="Notes" optional />
+              <textarea
+                name="notes"
+                value={form.notes}
+                onChange={handleChange}
+                rows={4}
+                placeholder="Any extra context about this lead..."
+                style={{ ...inputStyle, resize: "vertical", minHeight: 88 }}
+              />
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors"
+            style={{
+              width: "100%",
+              backgroundColor: loading ? "#E8A48E" : "#D97559",
+              color: "#FFFFFF",
+              fontWeight: 600,
+              fontSize: 15,
+              padding: "13px 24px",
+              borderRadius: 10,
+              border: "none",
+              cursor: loading ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              transition: "background-color 0.15s",
+              letterSpacing: "-0.01em",
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#C4623E";
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#D97559";
+            }}
           >
+            {loading && (
+              <svg
+                className="spin"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+              </svg>
+            )}
             {loading ? "Analyzing…" : "Analyze Lead →"}
           </button>
         </form>
 
+        {/* Error */}
         {error && (
-          <div className="mt-6 bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm">
+          <div
+            className="fade-in"
+            style={{
+              marginTop: 20,
+              backgroundColor: "rgba(200, 60, 40, 0.06)",
+              border: "1px solid rgba(200, 60, 40, 0.15)",
+              borderRadius: 12,
+              padding: "14px 18px",
+              color: "#9B2C2C",
+              fontSize: 14,
+            }}
+          >
             {error}
           </div>
         )}
 
+        {/* Results */}
         {result && <Results result={result} />}
       </div>
     </main>
+  );
+}
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  border: "1px solid #E8E3DA",
+  borderRadius: 8,
+  padding: "9px 12px",
+  fontSize: 14,
+  color: "#1A1714",
+  backgroundColor: "#FDFCFA",
+  outline: "none",
+  boxSizing: "border-box",
+  fontFamily: "inherit",
+  transition: "border-color 0.15s, box-shadow 0.15s",
+};
+
+function Label({ text, optional }: { text: string; optional?: boolean }) {
+  return (
+    <label
+      style={{
+        display: "block",
+        fontSize: 13,
+        fontWeight: 500,
+        color: "#4A4540",
+        marginBottom: 5,
+      }}
+    >
+      {text}
+      {optional && (
+        <span style={{ color: "#B0AAA4", fontWeight: 400, marginLeft: 4 }}>
+          (optional)
+        </span>
+      )}
+    </label>
   );
 }
 
@@ -172,12 +329,11 @@ function Field({
   placeholder?: string;
   required?: boolean;
 }) {
+  const [focused, setFocused] = useState(false);
+
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
-      </label>
+      <Label text={label} />
       <input
         type="text"
         name={name}
@@ -185,59 +341,200 @@ function Field({
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={{
+          ...inputStyle,
+          borderColor: focused ? "#D97559" : "#E8E3DA",
+          boxShadow: focused ? "0 0 0 3px rgba(217, 117, 89, 0.12)" : "none",
+        }}
       />
     </div>
   );
 }
 
+function ScoreBar({ score }: { score: number }) {
+  return (
+    <div
+      style={{
+        height: 5,
+        borderRadius: 99,
+        backgroundColor: "#F0EBE3",
+        overflow: "hidden",
+        marginTop: 5,
+        marginBottom: 8,
+      }}
+    >
+      <div
+        style={{
+          height: "100%",
+          width: `${score}%`,
+          borderRadius: 99,
+          background: "linear-gradient(90deg, #D97559, #E8926E)",
+          transition: "width 0.6s ease-out",
+        }}
+      />
+    </div>
+  );
+}
+
+function TierBadge({ tier }: { tier: "Hot" | "Warm" | "Cold" }) {
+  const styles = {
+    Hot: { bg: "rgba(217, 117, 89, 0.12)", text: "#B84F30", border: "rgba(217, 117, 89, 0.3)" },
+    Warm: { bg: "rgba(217, 170, 40, 0.1)", text: "#92660A", border: "rgba(217, 170, 40, 0.3)" },
+    Cold: { bg: "rgba(90, 110, 140, 0.1)", text: "#3A5070", border: "rgba(90, 110, 140, 0.25)" },
+  };
+  const s = styles[tier];
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        padding: "4px 14px",
+        borderRadius: 99,
+        fontSize: 13,
+        fontWeight: 600,
+        backgroundColor: s.bg,
+        color: s.text,
+        border: `1px solid ${s.border}`,
+        letterSpacing: "0.01em",
+      }}
+    >
+      {tier}
+    </span>
+  );
+}
+
 function Results({ result }: { result: QualificationResult }) {
   return (
-    <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
-      <div className="flex items-center gap-4">
-        <div className="text-5xl font-bold text-gray-900">{result.score}</div>
+    <div
+      className="fade-in"
+      style={{
+        marginTop: 20,
+        backgroundColor: "#FFFFFF",
+        borderRadius: 16,
+        border: "1px solid rgba(0,0,0,0.07)",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04)",
+        overflow: "hidden",
+      }}
+    >
+      {/* Score hero */}
+      <div
+        style={{
+          padding: "28px 28px 24px",
+          borderBottom: "1px solid #F0EBE3",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 20,
+        }}
+      >
         <div>
-          <span
-            className={`inline-block px-3 py-1 rounded-full border text-sm font-semibold ${TIER_STYLES[result.tier]}`}
+          <div
+            style={{
+              fontSize: 56,
+              fontWeight: 700,
+              color: "#D97559",
+              lineHeight: 1,
+              letterSpacing: "-0.04em",
+            }}
           >
-            {result.tier}
-          </span>
-          <p className="text-xs text-gray-400 mt-1">out of 100</p>
+            {result.score}
+          </div>
+          <div style={{ fontSize: 13, color: "#B0AAA4", marginTop: 3 }}>out of 100</div>
+        </div>
+        <div style={{ paddingTop: 6 }}>
+          <TierBadge tier={result.tier} />
+          <p
+            style={{
+              marginTop: 12,
+              fontSize: 14,
+              color: "#4A4540",
+              lineHeight: 1.6,
+              maxWidth: 440,
+            }}
+          >
+            {result.summary}
+          </p>
         </div>
       </div>
 
-      <p className="text-gray-700 text-sm leading-relaxed">{result.summary}</p>
-
-      <div className="border-t pt-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">
+      {/* Score breakdown */}
+      <div style={{ padding: "24px 28px", borderBottom: "1px solid #F0EBE3" }}>
+        <p
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "#D97559",
+            marginBottom: 20,
+          }}
+        >
           Score Breakdown
         </p>
-        <div className="space-y-3">
+        <div style={{ display: "grid", gap: 20 }}>
           {Object.entries(result.dimensions).map(([key, dim]) => (
             <div key={key}>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="font-medium text-gray-700">
-                  {DIMENSION_LABELS[key] ?? key}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  marginBottom: 2,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: "#1A1714" }}>
+                    {DIMENSION_LABELS[key] ?? key}
+                  </span>
+                  <span style={{ fontSize: 11, color: "#B0AAA4" }}>
+                    {DIMENSION_WEIGHTS[key]} weight
+                  </span>
+                </div>
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: dim.score >= 80 ? "#D97559" : dim.score >= 50 ? "#92660A" : "#3A5070",
+                  }}
+                >
+                  {dim.score}
                 </span>
-                <span className="text-gray-500">{dim.score}/100</span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-1.5">
-                <div
-                  className="bg-blue-500 h-1.5 rounded-full"
-                  style={{ width: `${dim.score}%` }}
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">{dim.reasoning}</p>
+              <ScoreBar score={dim.score} />
+              <p style={{ fontSize: 13, color: "#9C9490", lineHeight: 1.5 }}>
+                {dim.reasoning}
+              </p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="border-t pt-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1">
-          Next Action
+      {/* Next action */}
+      <div style={{ padding: "20px 28px" }}>
+        <p
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "#D97559",
+            marginBottom: 12,
+          }}
+        >
+          Recommended Action
         </p>
-        <p className="text-sm font-medium text-gray-900">{result.nextAction}</p>
+        <div
+          style={{
+            borderLeft: "3px solid #D97559",
+            paddingLeft: 14,
+            paddingTop: 2,
+            paddingBottom: 2,
+          }}
+        >
+          <p style={{ fontSize: 15, fontWeight: 600, color: "#1A1714", margin: 0 }}>
+            {result.nextAction}
+          </p>
+        </div>
       </div>
     </div>
   );
