@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { runs, tasks } from "@trigger.dev/sdk/v3";
+import { configure, runs, tasks } from "@trigger.dev/sdk/v3";
+
+configure({ secretKey: process.env.TRIGGER_API_KEY });
 
 // Tell Vercel this function can run up to 60s (requires Pro plan).
 // Claude + Trigger.dev round-trip can take 15–30s — default 10s will timeout.
