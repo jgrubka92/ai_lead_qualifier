@@ -3,8 +3,7 @@ name: Deploy Trigger.dev
 on:
   push:
     branches:
-      - main    # deploys to production
-      - dev     # deploys to staging
+      - main
 
 jobs:
   deploy:
@@ -21,15 +20,7 @@ jobs:
         working-directory: trigger
 
       - name: Deploy to production
-        if: github.ref == 'refs/heads/main'
         run: npx trigger.dev@4.4.6 deploy --env prod
-        working-directory: trigger
-        env:
-          TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
-
-      - name: Deploy to staging
-        if: github.ref == 'refs/heads/dev'
-        run: npx trigger.dev@4.4.6 deploy --env dev
         working-directory: trigger
         env:
           TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
