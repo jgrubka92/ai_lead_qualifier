@@ -13,6 +13,11 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const model = genAI.getGenerativeModel({
   model: "gemini-2.5-flash",
   systemInstruction: QUALIFY_LEAD_PROMPT,
+  generationConfig: {
+    // Force raw JSON output — eliminates markdown fences, preamble text, and
+    // thinking traces that cause JSON.parse to fail on valid-looking responses.
+    responseMimeType: "application/json",
+  },
 });
 
 export const qualifyLead = task({
@@ -23,15 +28,7 @@ export const qualifyLead = task({
       `Here is the lead to qualify:\n\n${formatLeadForPrompt(payload)}`
     );
 
-    const text = result.response.text();
-
-    // Strip any markdown code fences if the model adds them
-    const json = text
-      .replace(/^```json\s*/i, "")
-      .replace(/\s*```$/i, "")
-      .trim();
-
-    const parsed = JSON.parse(json);
+    const parsed = JSON.parse(result.response.text());
     return validateResult(parsed);
   },
 });

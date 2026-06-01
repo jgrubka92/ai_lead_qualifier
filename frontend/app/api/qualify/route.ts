@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { configure, runs, tasks } from "@trigger.dev/sdk/v3";
 import { createClient } from "@/lib/supabase/server";
 import { isUserActive } from "@/lib/subscription";
+import { FREE_TIER_LIMIT } from "@/lib/constants";
 
 configure({ secretKey: process.env.TRIGGER_API_KEY });
 
@@ -18,12 +19,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  // Paywall enforced server-side too — don't trust the UI gate before paid work runs
-  if (!(await isUserActive(supabase, user.id))) {
-    return NextResponse.json(
-      { ok: false, error: "Active subscription required" },
-      { status: 402 }
-    );
+  // Free tier gate — check BEFORE parsing body so malformed JSON gets 402 not 500
+  const subscribed = await isUserActive(supabase, user.id);
+  if (!subscribed) {
+    const { count } = await supabase
+      .from("leads")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id);
+    if ((count ?? 0) >= FREE_TIER_LIMIT) {
+      return NextResponse.json(
+        { ok: false, error: "Free qualification limit reached. Subscribe to continue." },
+        { status: 402 }
+      );
+    }
   }
 
   const body = await req.json();
