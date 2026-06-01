@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { isUserActive } from "@/lib/subscription";
 import SignOutButton from "./_components/SignOutButton";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -11,9 +10,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
-
-  // Paywall: gate the whole app behind an active subscription.
-  if (!(await isUserActive(supabase, user.id))) redirect("/billing");
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#FAF7F2" }}>

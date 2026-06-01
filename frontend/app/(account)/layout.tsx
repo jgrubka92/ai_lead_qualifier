@@ -50,6 +50,12 @@ export default async function AccountLayout({ children }: { children: React.Reac
             Qualify
           </Link>
           <Link
+            href="/history"
+            style={{ fontSize: 14, color: "#4A4540", textDecoration: "none", fontWeight: 500 }}
+          >
+            History
+          </Link>
+          <Link
             href="/billing"
             style={{ fontSize: 14, color: "#4A4540", textDecoration: "none", fontWeight: 500 }}
           >
