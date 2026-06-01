@@ -1,19 +1,17 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { isUserActive } from "@/lib/subscription";
-import SignOutButton from "./_components/SignOutButton";
+import SignOutButton from "../(app)/_components/SignOutButton";
 
-export default async function AppLayout({ children }: { children: React.ReactNode }) {
+// Account area requires AUTH but NOT an active subscription — otherwise a
+// non-subscriber could never reach the billing page to subscribe.
+export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
-
-  // Paywall: gate the whole app behind an active subscription.
-  if (!(await isUserActive(supabase, user.id))) redirect("/billing");
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#FAF7F2" }}>
@@ -32,32 +30,24 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 600,
-                color: "#FFFFFF",
-                backgroundColor: "#1A1714",
-                padding: "2px 8px",
-                borderRadius: 20,
-                letterSpacing: "0.02em",
-              }}
-            >
-              Faliam
-            </span>
-          </div>
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#FFFFFF",
+              backgroundColor: "#1A1714",
+              padding: "2px 8px",
+              borderRadius: 20,
+              letterSpacing: "0.02em",
+            }}
+          >
+            Faliam
+          </span>
           <Link
             href="/qualify"
             style={{ fontSize: 14, color: "#4A4540", textDecoration: "none", fontWeight: 500 }}
           >
             Qualify
-          </Link>
-          <Link
-            href="/history"
-            style={{ fontSize: 14, color: "#4A4540", textDecoration: "none", fontWeight: 500 }}
-          >
-            History
           </Link>
           <Link
             href="/billing"

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { configure, runs, tasks } from "@trigger.dev/sdk/v3";
 import { createClient } from "@/lib/supabase/server";
+import { isUserActive } from "@/lib/subscription";
 
 configure({ secretKey: process.env.TRIGGER_API_KEY });
 
@@ -15,6 +16,14 @@ export async function POST(req: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Paywall enforced server-side too — don't trust the UI gate before paid work runs
+  if (!(await isUserActive(supabase, user.id))) {
+    return NextResponse.json(
+      { ok: false, error: "Active subscription required" },
+      { status: 402 }
+    );
   }
 
   const body = await req.json();
