@@ -23,12 +23,18 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  const path = request.nextUrl.pathname;
+
+  // Stripe webhook is called by Stripe servers (no user session) — skip auth entirely
+  if (path.startsWith("/api/stripe/webhook")) {
+    return supabaseResponse;
+  }
+
   // Always call getUser() — validates JWT with Supabase and refreshes the session cookie
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
   const isProtected = path.startsWith("/qualify") || path.startsWith("/history");
   const isAuthPage = path.startsWith("/login");
 
